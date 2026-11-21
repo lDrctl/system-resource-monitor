@@ -6,6 +6,8 @@ from datetime import datetime
 
 import psutil
 
+from .gpu import GPUCollector
+
 
 def cpu_model():
     if platform.system() == "Linux":
@@ -67,6 +69,7 @@ def cpu_times():
 
 class Collector:
     def __init__(self):
+        self.gpu = GPUCollector()
         self.previous_cpu = cpu_times()
         self.previous_network = self.network_snapshot()
 
@@ -98,6 +101,7 @@ class Collector:
             "timestamp": datetime.now().astimezone().isoformat(),
             "uptime_seconds": max(0, int(time.time() - psutil.boot_time())),
             "cpu_percent": cpu_percent,
+            "gpu": self.gpu.sample(),
             "memory": {
                 "total": memory.total,
                 "used": memory.total - memory.available,
